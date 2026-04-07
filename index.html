@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kalkulator Cashflow</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #111110;
+      --card: #1c1c1a;
+      --card2: #242422;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text: #eeeae3;
+      --muted: #7a7770;
+      --accent: #d4f562;
+      --accent2: #a8c94a;
+      --r: 14px;
+      --r-sm: 9px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      padding-bottom: 130px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    /* HEADER */
+    .header {
+      padding: 1.25rem 1rem 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .eyebrow {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 3px;
+    }
+
+    .header h1 { font-size: 1.5rem; font-weight: 700; line-height: 1.2; }
+    .header h1 em { font-style: normal; color: var(--accent); }
+    .header p { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 3px; }
+
+    /* SCENARIO TABS */
+    .scenario-wrap { padding: 1rem 1rem 0; }
+
+    .section-title {
+      font-family: 'DM Mono', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .scenario-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .tab {
+      padding: 9px 4px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--border2);
+      background: transparent;
+      color: var(--muted);
+      font-family: 'DM Mono', monospace;
+      font-size: 12px;
+      cursor: pointer;
+      transition: background 0.12s, color 0.12s, border-color 0.12s;
+      touch-action: manipulation;
+      text-align: center;
+    }
+
+    .tab.active { background: var(--accent); color: #111110; border-color: var(--accent); font-weight: 500; }
+
+    /* SECTIONS */
+    .section { padding: 1rem 1rem 0; }
+
+    /* MINI STRIP */
+    .mini-strip { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+
+    .mini-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r-sm);
+      padding: 10px 10px 9px;
+    }
+
+    .mini-card.green { background: rgba(212,245,98,0.07); border-color: rgba(212,245,98,0.18); }
+
+    .mini-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    .mini-val { font-size: 15px; font-weight: 700; color: var(--text); line-height: 1; }
+    .mini-card.green .mini-val { color: var(--accent); }
+
+    /* SLIDERS */
+    .slider-list {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+
+    .slider-item { padding: 13px 14px; border-bottom: 1px solid var(--border); }
+    .slider-item:last-child { border-bottom: none; }
+
+    .slider-top { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+    .slider-lbl { font-size: 13px; color: var(--muted); }
+
+    .slider-val {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      background: var(--card2);
+      border-radius: 2px;
+      outline: none;
+      border: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      box-shadow: 0 0 0 1.5px var(--accent2);
+      cursor: pointer;
+    }
+
+    input[type=range]::-moz-range-thumb {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      background: var(--accent);
+      border: 3px solid var(--bg);
+      cursor: pointer;
+    }
+
+    /* BREAKDOWN */
+    .breakdown-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+
+    .brow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 11px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      gap: 8px;
+    }
+
+    .brow:last-child { border-bottom: none; }
+    .brow-lbl { color: var(--muted); }
+    .brow-val { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--text); white-space: nowrap; }
+
+    .brow.total { background: rgba(212,245,98,0.06); border-top: 1px solid rgba(212,245,98,0.15); border-bottom: none; }
+    .brow.total .brow-lbl { color: var(--text); font-weight: 600; }
+    .brow.total .brow-val { color: var(--accent); font-size: 14px; }
+
+    /* PER-BARBER CARDS */
+    .barber-cards { display: flex; flex-direction: column; gap: 8px; }
+
+    .barber-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      overflow: hidden;
+    }
+
+    .barber-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 14px;
+      background: var(--card2);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .barber-name { font-size: 13px; font-weight: 600; color: var(--text); }
+    .barber-total { font-family: 'DM Mono', monospace; font-size: 15px; font-weight: 500; color: var(--accent); }
+
+    .barber-rows { padding: 2px 0; }
+
+    .barber-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 14px;
+      font-size: 12px;
+      gap: 8px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .barber-row:last-child { border-bottom: none; }
+    .barber-row span:first-child { color: var(--muted); }
+    .barber-row span:last-child { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text); white-space: nowrap; }
+
+    /* STICKY BAR */
+    .sticky-bar {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: rgba(17,17,16,0.94);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border-top: 1px solid var(--border2);
+      padding: 12px 1rem 20px;
+      z-index: 100;
+    }
+
+    .sticky-inner {
+      max-width: 600px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .sticky-item { text-align: center; }
+
+    .sticky-label {
+      font-family: 'DM Mono', monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+      margin-bottom: 2px;
+    }
+
+    .sticky-val { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1; }
+    .sticky-item.profit .sticky-val { color: var(--accent); font-size: 20px; }
+    .sticky-item.profit .sticky-label { color: rgba(212,245,98,0.6); }
+
+    .gap-lg { height: 1.25rem; }
+
+    @media (min-width: 640px) {
+      body { padding-bottom: 100px; }
+      .header { padding: 2rem 1.5rem 1.25rem; }
+      .header h1 { font-size: 2rem; }
+      .scenario-wrap, .section { padding-left: 1.5rem; padding-right: 1.5rem; }
+      .sticky-val { font-size: 18px; }
+      .sticky-item.profit .sticky-val { font-size: 22px; }
+    }
+  </style>
+</head>
+<body>
+  
+  <div class="header">
+    <div class="eyebrow">PT Rokan Muara Enam</div>
+    <h1>Kalkulator <em>Cashflow Barbershop</em></h1>
+  </div>
+
+  <div class="scenario-wrap">
+    <div class="section-title">Skenario Pendapatan</div>
+    <div class="scenario-tabs">
+      <button class="tab" onclick="setScenario('low',this)">Rendah</button>
+      <button class="tab active" onclick="setScenario('mid',this)">Sedang</button>
+      <button class="tab" onclick="setScenario('high',this)">Tinggi</button>
+      <button class="tab" onclick="setScenario('custom',this)">Custom</button>
+    </div>
+  </div>
+
+  <div class="gap-lg"></div>
+
+  <!-- Quick stats -->
+  <div class="section">
+    <div class="section-title">Ringkasan</div>
+    <div class="mini-strip">
+      <div class="mini-card green">
+        <div class="mini-label">Net / bulan</div>
+        <div class="mini-val" id="m-net">—</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-label">Revenue</div>
+        <div class="mini-val" id="m-rev">—</div>
+      </div>
+      <div class="mini-card">
+        <div class="mini-label">Margin</div>
+        <div class="mini-val" id="m-margin">—</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-lg"></div>
+
+  <!-- Sliders -->
+  <div class="section">
+    <div class="section-title">Parameter</div>
+    <div class="slider-list">
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Harga per cut</span>
+          <span class="slider-val" id="price-out">Rp 65k</span>
+        </div>
+        <input type="range" id="price" min="50000" max="100000" step="5000" value="65000" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Cut per barber / hari</span>
+          <span class="slider-val" id="cuts-out">10</span>
+        </div>
+        <input type="range" id="cuts" min="4" max="20" step="1" value="10" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Hari kerja / bulan</span>
+          <span class="slider-val" id="days-out">26</span>
+        </div>
+        <input type="range" id="days" min="20" max="30" step="1" value="26" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Jumlah barber</span>
+          <span class="slider-val" id="barbers-out">3</span>
+        </div>
+        <input type="range" id="barbers" min="1" max="8" step="1" value="3" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Base pay / barber</span>
+          <span class="slider-val" id="base-out">Rp 4M</span>
+        </div>
+        <input type="range" id="base" min="3000000" max="6000000" step="250000" value="4000000" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Bonus per cut</span>
+          <span class="slider-val" id="bonus-out">Rp 8k</span>
+        </div>
+        <input type="range" id="bonus" min="0" max="20000" step="1000" value="8000" oninput="update()" />
+      </div>
+      <div class="slider-item">
+        <div class="slider-top">
+          <span class="slider-lbl">Overhead bulanan</span>
+          <span class="slider-val" id="overhead-out">Rp 2.5M</span>
+        </div>
+        <input type="range" id="overhead" min="0" max="10000000" step="250000" value="2500000" oninput="update()" />
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-lg"></div>
+
+  <!-- P&L Breakdown -->
+  <div class="section">
+    <div class="section-title">Rincian P&amp;L (semua barber)</div>
+    <div class="breakdown-card">
+      <div class="brow"><span class="brow-lbl">Gross revenue</span><span class="brow-val" id="b-rev">—</span></div>
+      <div class="brow"><span class="brow-lbl">Total base pay</span><span class="brow-val" id="b-base">—</span></div>
+      <div class="brow"><span class="brow-lbl">Total bonus</span><span class="brow-val" id="b-bonus">—</span></div>
+      <div class="brow"><span class="brow-lbl">Overhead</span><span class="brow-val" id="b-oh">—</span></div>
+      <div class="brow total"><span class="brow-lbl">Keuntungan bersih</span><span class="brow-val" id="b-net">—</span></div>
+    </div>
+  </div>
+
+  <div class="gap-lg"></div>
+
+  <!-- Per-barber breakdown -->
+  <div class="section">
+    <div class="section-title">Penghasilan per barber / bulan</div>
+    <div class="barber-card">
+      <div class="barber-card-header">
+        <span class="barber-name">Per barber</span>
+        <span class="barber-total" id="pb-total">—</span>
+      </div>
+      <div class="barber-rows">
+        <div class="barber-row"><span>Base pay</span><span id="pb-base">—</span></div>
+        <div class="barber-row"><span>Cut / bulan</span><span id="pb-cuts">—</span></div>
+        <div class="barber-row"><span>Bonus cuts</span><span id="pb-bonus">—</span></div>
+        <div class="barber-row"><span>Revenue yang dihasilkan</span><span id="pb-rev">—</span></div>
+        <div class="barber-row"><span>Bagian barber</span><span id="pb-pct">—</span></div>
+      </div>
+      <div class="barber-card-header" style="border-top: 1px solid var(--border); border-bottom: none; background: rgba(212,245,98,0.06);">
+        <span class="barber-name" style="color: var(--muted); font-weight: 500;">Total semua barber</span>
+        <span class="barber-total" id="pb-total-all">—</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="gap-lg"></div>
+
+  <!-- STICKY BAR -->
+  <div class="sticky-bar">
+    <div class="sticky-inner">
+      <div class="sticky-item">
+        <div class="sticky-label">Revenue / bln</div>
+        <div class="sticky-val" id="s-rev">—</div>
+      </div>
+      <div class="sticky-item profit">
+        <div class="sticky-label">Keuntungan bersih</div>
+        <div class="sticky-val" id="s-net">—</div>
+      </div>
+      <div class="sticky-item">
+        <div class="sticky-label">Proyeksi / tahun</div>
+        <div class="sticky-val" id="s-annual">—</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="scripts.js"></script>
+
+</body>
+</html>
