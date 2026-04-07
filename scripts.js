@@ -7,7 +7,7 @@ const scenarios = {
     function fmt(n) {
       const abs = Math.abs(n);
       const sign = n < 0 ? '-' : '';
-      if (abs >= 1000000) return sign + 'Rp\u00a0' + (abs / 1000000).toFixed(1) + 'M';
+      if (abs >= 1000000) return sign + 'Rp\u00a0' + (abs / 1000000).toFixed(1) + ' jt';
       if (abs >= 1000)    return sign + 'Rp\u00a0' + Math.round(abs / 1000) + 'k';
       return sign + 'Rp\u00a0' + Math.round(abs);
     }
