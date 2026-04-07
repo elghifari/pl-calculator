@@ -84,7 +84,3 @@ const scenarios = {
     }
 
     update();
-
-    document.querySelectorAll('input[type=range]').forEach(el => {
-        el.addEventListener('touchstart', e => e.stopPropagation(), { passive: true });
-    });
